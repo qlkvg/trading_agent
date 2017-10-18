@@ -96,18 +96,19 @@ class KiwoomAgent(QMainWindow):
         ret = self.api.commConnect()
 
     def handleConnect(self, errCode):
-        if errCode == 0:  # No Error
+        if errCode == 0:  # 0: No Error, others: Error
             state = self.api.getConnectState()
-            if state == 1:
-                account_no = self.api.getLoginInfo("ACCNO")
-                user_id = self.api.getLoginInfo("USER_ID")
-                user_name = self.api.getLoginInfo("USER_NAME")
+            if state == 1: # 1: 연결 완료, 0: 미연결
+                tags = ["ACCNO", "USER_ID", "USER_NAME"]:
+                results = list(map(lambda tag: self.api.getLoginInfo(tag), tags))
+                print('Login Info', results)
+                # self.socketio.send()
                 self.statusBar().showMessage('Logged in')
-                # self.debug_list.addItem("{},{},{}".format(account_no, user_id, user_name))
-            else:
-                self.statusBar().showMessage('Logged out')
-        else: # Something wrong
-            self.statusBar().showMessage('Logged out')
+                # account_no = self.api.getLoginInfo("ACCNO")
+                # user_id = self.api.getLoginInfo("USER_ID")
+                # user_name = self.api.getLoginInfo("USER_NAME")
+        # self.socketio.send()
+        self.statusBar().showMessage('Logged out')
 
     def get_current_price(self, stock_code):
         val = self.input_edit.text()

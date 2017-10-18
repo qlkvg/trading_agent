@@ -68,7 +68,7 @@ class KiwoomAPI(QObject):
         if self.kiwoom:
             return self.kiwoom.dynamicCall("GetLoginInfo(str)",[tag])
         else:
-            return 'Something'
+            return tag
 
     # @pyqtSlot(str, str)
     def setInputValue(self, id, value):
