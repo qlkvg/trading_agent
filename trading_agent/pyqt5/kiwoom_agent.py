@@ -99,7 +99,7 @@ class KiwoomAgent(QMainWindow):
         if errCode == 0:  # 0: No Error, others: Error
             state = self.api.getConnectState()
             if state == 1: # 1: 연결 완료, 0: 미연결
-                tags = ["ACCNO", "USER_ID", "USER_NAME"]:
+                tags = ["ACCNO", "USER_ID", "USER_NAME"]
                 results = list(map(lambda tag: self.api.getLoginInfo(tag), tags))
                 print('Login Info', results)
                 # self.socketio.send()
