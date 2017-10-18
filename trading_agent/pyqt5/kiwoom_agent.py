@@ -104,6 +104,7 @@ class KiwoomAgent(QMainWindow):
                 print('Login Info', results)
                 # self.socketio.send()
                 self.statusBar().showMessage('Logged in')
+                return
                 # account_no = self.api.getLoginInfo("ACCNO")
                 # user_id = self.api.getLoginInfo("USER_ID")
                 # user_name = self.api.getLoginInfo("USER_NAME")
