@@ -9,6 +9,6 @@ setup(
 	author_email='hl1sqi@gmail.com',
 	license='MIT',
 	packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-	install_requires=['flask', 'flask_json', 'flask-socketio', 'eventlet'],
+	install_requires=['flask', 'flask_json', 'flask-socketio', 'eventlet', 'flask-cors'],
 	include_package_data=True,
 )
