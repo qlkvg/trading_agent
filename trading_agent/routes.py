@@ -6,6 +6,9 @@ from flask_json import FlaskJSON, JsonError, json_response, as_json
 from .main import app
 from .main import kiwoom_agent
 
+from flask_cors import CORS
+CORS(app)
+
 json = FlaskJSON(app)
 # app.config['JSON_ADD_STATUS'] = False
 app.config['JSON_DATETIME_FORMAT'] = '%d/%m/%Y %H:%M:%S'
@@ -15,10 +18,11 @@ app.config['JSON_DATETIME_FORMAT'] = '%d/%m/%Y %H:%M:%S'
 def index():
     return render_template('index.html')
 
-@app.route('/login')
+@app.route('/login', methods=['POST'])
 def login():
     kiwoom_agent.login()
-    return render_template('index.html')
+    return json_response(status_=202)
+    # return render_template('index.html')
 
 @app.route('/poweroff')
 def poweroff():
