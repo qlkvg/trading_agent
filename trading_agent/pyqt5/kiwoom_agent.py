@@ -9,15 +9,19 @@ from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot #, QString
 
 from trading_agent.pyqt5.kiwoom_api import KiwoomAPI
 
+# from hgoldfish.utils import eventlet
+from trading_agent.eventlet_pyqt.hgoldfish.utils import eventlet
+
+
 class KiwoomAgent(QMainWindow):
     # OnEventConnect = pyqtSignal(int)
 
     def __init__(self, qtapp, flask_app, socketio):
         super().__init__()
-
+        self.operations = eventlet.GreenletGroup()
 
         self.qtapp = qtapp
-        # self.flask_app = flask_app
+        self.flask_app = flask_app
         self.socketio = socketio
         self.initUI()
 
@@ -62,7 +66,8 @@ class KiwoomAgent(QMainWindow):
         reply = QMessageBox.question(self, 'Message', "Are you sure to quit?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
 
         if reply == QMessageBox.Yes:
-            event.accept()
+            self.socketio.stop()
+            # event.accept()
         else:
             event.ignore()
 
@@ -71,10 +76,12 @@ class KiwoomAgent(QMainWindow):
             self.close()
 
     def quit(self):
-        self.qtapp.quit()
+        self.socketio.stop()
+        # self.qtapp.quit()
 
     def poweroff(self):
-        self.qtapp.quit()
+        self.socketio.stop()
+        # self.qtapp.quit()
 
     def get_platform(self):
         platforms = {
@@ -89,26 +96,35 @@ class KiwoomAgent(QMainWindow):
         return platforms[sys.platform]
 
     def test(self):
-        pass
+        print('In test()', self, self.socketio)
+        self.socketio.emit('SSE', {'Hello': 'TEST'})
+        self.socketio.send('Blah Blah', namespace='/')
+        # self.socketio.sleep(0)
+        # pass
         # self.OnEventConnect.emit(1)
 
     def login(self):
-        ret = self.api.commConnect()
+        if self.api.getConnectState() == 1:
+            return True
+        else:
+            ret = self.api.commConnect()
+            return False # not connected yet
 
     def handleConnect(self, errCode):
         if errCode == 0:  # 0: No Error, others: Error
             state = self.api.getConnectState()
             if state == 1: # 1: 연결 완료, 0: 미연결
+                self.socketio.emit('authentication', {'status': 'logged_in'})
+
                 tags = ["ACCNO", "USER_ID", "USER_NAME"]
                 results = list(map(lambda tag: self.api.getLoginInfo(tag), tags))
                 print('Login Info', results)
-                # self.socketio.send()
-                self.statusBar().showMessage('Logged in')
                 return
                 # account_no = self.api.getLoginInfo("ACCNO")
                 # user_id = self.api.getLoginInfo("USER_ID")
                 # user_name = self.api.getLoginInfo("USER_NAME")
-        # self.socketio.send()
+
+        self.socketio.emit('authentication', {'status': 'logged_out'})
         self.statusBar().showMessage('Logged out')
 
     def get_current_price(self, stock_code):

@@ -6,6 +6,12 @@ from flask_json import FlaskJSON, JsonError, json_response, as_json
 from .main import app
 from .main import kiwoom_agent
 
+# from .main import qtapp
+# from .main import socketio
+# from trading_agent.pyqt5.kiwoom_agent import KiwoomAgent
+# kiwoom_agent = KiwoomAgent(qtapp=qtapp, flask_app=app, socketio=socketio)
+
+
 from flask_cors import CORS
 CORS(app)
 
@@ -20,14 +26,15 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
-    kiwoom_agent.login()
-    return json_response(status_=202)
+    ret = kiwoom_agent.login()
+    return json_response(connected=ret, status_=202)
     # return render_template('index.html')
 
 @app.route('/poweroff')
 def poweroff():
+    # socketio.stop()
     kiwoom_agent.poweroff()
-    # return "<h1>Poweroff</h1>"
+    # # return "<h1>Poweroff</h1>"
     return render_template('index.html')
 
 @app.route('/test')
@@ -65,6 +72,12 @@ from .main import socketio
 @socketio.on('connect')
 def connected():
     print("Connected...")
+    # emit('SSE', {'connected': 'yep'}, broadcast=True)
+    ret = kiwoom_agent.login()
+    if ret:
+        emit('authentication', {'status': 'logged_in'})
+    else:
+        emit('authentication', {'status': 'logged_out'})
 
 @socketio.on('disconnect')
 def disconnected():
@@ -77,4 +90,4 @@ def handle_message(message):
 @socketio.on('CSE')
 def handle_my_custom_event(json):
     print('received CSE: ' + str(json))
-    emit('SSE', json)
+    # emit('SSE', json)
