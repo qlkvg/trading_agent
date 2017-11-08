@@ -30,12 +30,22 @@ def login():
     return json_response(connected=ret, status_=202)
     # return render_template('index.html')
 
-@app.route('/poweroff')
+@app.route('/poweroff', methods=['POST'])
 def poweroff():
     # socketio.stop()
     kiwoom_agent.poweroff()
+    # return json_response(status_=200)
     # # return "<h1>Poweroff</h1>"
-    return render_template('index.html')
+    # return render_template('index.html')
+
+@app.route('/check_balance/<account_no>')
+def check_balance(account_no):
+    # print('check_balance: ', account_no)
+    ret = kiwoom_agent.check_balance(account_no)
+    if ret == 0:
+        return json_response(status_=202)
+    else:
+        return json_response(status_=202) # ??
 
 @app.route('/test')
 def test():
@@ -72,8 +82,7 @@ from .main import socketio
 @socketio.on('connect')
 def connected():
     print("Connected...")
-    # emit('SSE', {'connected': 'yep'}, broadcast=True)
-    ret = kiwoom_agent.login()
+    ret = kiwoom_agent.getConnectState()
     if ret:
         emit('authentication', {'status': 'logged_in'})
     else:

@@ -40,8 +40,11 @@ class KiwoomAPI(QObject):
         self.agent.debug_list.addItem("<< OnReceiveTrData() is received")
         print("OnReceiveTrData: ", scrNo, rQName , trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg)
 
-        print(self.getRepeatCnt(trCode, rQName))
-        print(self.commGetData(trCode, "", rQName, 0, "종목명"))
+        if (trCode == 'opw00004'):
+            self.agent.handleCheckBalance(trCode, rQName, scrNo, recordName)
+
+        # print(self.getRepeatCnt(trCode, rQName))
+        # print(self.commGetData(trCode, "", rQName, 0, "종목명"))
         #     print(self.kiwoom.CommGetData(trCode, "", rQName, 0, "시가총액"))
         #     print(self.kiwoom.CommGetData(trCode, "", rQName, 0, "거래량"))
         #     print(self.commGetData(trCode, "", rQName, 0, "현재가"))
@@ -95,3 +98,8 @@ class KiwoomAPI(QObject):
         if self.kiwoom:
             return self.kiwoom.dynamicCall("CommGetData(str, str, str, int, str)", jongmokCode, realType, fieldName, index, innerFieldName).strip()
             # return self.kiwoom.dynamicCall("CommGetData(str, str, str, int, str)", "opt10001", "", "주식기본정보", 0, "종목코드").strip()
+
+    def getCommData(self, trCode, recordName, index, itemName):
+        self.agent.debug_list.addItem(">> GetCommData('{}', '{}', '{}', {}) is called".format(trCode, recordName, index, itemName))
+        if self.kiwoom:
+            return self.kiwoom.dynamicCall("GetCommData(str, str, int, str)", trCode, recordName, index, itemName).strip()

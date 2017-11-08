@@ -12,7 +12,6 @@ from trading_agent.pyqt5.kiwoom_api import KiwoomAPI
 # from hgoldfish.utils import eventlet
 from trading_agent.eventlet_pyqt.hgoldfish.utils import eventlet
 
-
 class KiwoomAgent(QMainWindow):
     # OnEventConnect = pyqtSignal(int)
 
@@ -105,10 +104,20 @@ class KiwoomAgent(QMainWindow):
 
     def login(self):
         if self.api.getConnectState() == 1:
+            # self.socketio.emit('authentication', {'status': 'logged_in'})
             return True
         else:
             ret = self.api.commConnect()
             return False # not connected yet
+
+    def getConnectState(self):
+        if self.api.getConnectState() == 1:
+            tags = ["ACCNO", "USER_ID", "USER_NAME"]
+            results = {tag: self.api.getLoginInfo(tag) for tag in tags}
+            self.socketio.emit('basic-info', results)
+            return True
+        else:
+            return False
 
     def handleConnect(self, errCode):
         if errCode == 0:  # 0: No Error, others: Error
@@ -117,15 +126,29 @@ class KiwoomAgent(QMainWindow):
                 self.socketio.emit('authentication', {'status': 'logged_in'})
 
                 tags = ["ACCNO", "USER_ID", "USER_NAME"]
-                results = list(map(lambda tag: self.api.getLoginInfo(tag), tags))
-                print('Login Info', results)
+                # results = list(map(lambda tag: self.api.getLoginInfo(tag), tags))
+                results = {tag: self.api.getLoginInfo(tag) for tag in tags}
+                self.socketio.emit('basic-info', results)
+                # print('Login Info', results)
                 return
-                # account_no = self.api.getLoginInfo("ACCNO")
-                # user_id = self.api.getLoginInfo("USER_ID")
-                # user_name = self.api.getLoginInfo("USER_NAME")
 
         self.socketio.emit('authentication', {'status': 'logged_out'})
         self.statusBar().showMessage('Logged out')
+
+    def check_balance(self, account_no):
+        self.api.setInputValue('계좌번호', account_no)
+        self.api.setInputValue('비밀번호', '')
+        self.api.setInputValue('상장폐지조회구분', '0')
+        self.api.setInputValue('비밀번호입력매체구분', '00')
+
+        ret = self.api.commRqData('계좌평가현황요청', 'opw00004', 0, '0001')
+        return ret
+
+    def handleCheckBalance(self, trCode, rQName, scrNo, recordName):
+        itemNames = ["예수금", "D+2추정예수금", "유가잔고평가액", "예탁자산평가액", "추정예탁자산", "누적손익율"]
+        results = {itemName: self.api.getCommData(trCode, rQName, recordName, itemName) for itemName in itemNames}
+        self.socketio.emit('balance-info', results)
+        # print('계좌평가현황요청', results)
 
     def get_current_price(self, stock_code):
         val = self.input_edit.text()
