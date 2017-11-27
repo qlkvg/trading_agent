@@ -149,6 +149,28 @@ class KiwoomAgent(QMainWindow):
         results = {itemName: self.api.getCommData(trCode, rQName, recordName, itemName) for itemName in itemNames}
         self.socketio.emit('balance-info', results)
         # print('계좌평가현황요청', results)
+        self.handleGetAssets(trCode, rQName, scrNo, recordName)
+
+    def get_assets(self, account_no):
+        self.api.setInputValue('계좌번호', account_no)
+        self.api.setInputValue('비밀번호', '')
+        self.api.setInputValue('상장폐지조회구분', '0')
+        self.api.setInputValue('비밀번호입력매체구분', '00')
+
+        ret = self.api.commRqData('보유주식요청', 'opw00004', 0, '0001')
+        return ret
+
+    def handleGetAssets(self, trCode, rQName, scrNo, recordName):
+        itemNames = ["종목코드", "종목명", "보유수량", "평균단가", "현재가"]
+        results = []
+
+        cnts = self.api.getRepeatCnt(trCode, rQName)
+        for idx in range(0, cnts):
+            results.append({itemName: self.api.getCommData(trCode, rQName, idx, itemName) for itemName in itemNames})
+
+        if len(results) > 0:
+            self.socketio.emit('assets-info', results)
+            # print('보유주식요청', results)
 
     def get_current_price(self, stock_code):
         val = self.input_edit.text()

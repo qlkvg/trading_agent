@@ -47,6 +47,14 @@ def check_balance(account_no):
     else:
         return json_response(status_=202) # ??
 
+@app.route('/assets/<account_no>')
+def get_assets(account_no):
+    ret = kiwoom_agent.get_assets(account_no)
+    if ret == 0:
+        return json_response(status_=202)
+    else:
+        return json_response(status_=202)
+
 @app.route('/test')
 def test():
     res = kiwoom_agent.test()
@@ -62,7 +70,7 @@ def get_time():
 def increment_value():
     # We use 'force' to skip mimetype checking to have shorter curl command.
     data = request.get_json(force=True)
-    print(data)
+    # print(data)
     try:
         value = int(data['value'])
     except (KeyError, TypeError, ValueError):
@@ -81,7 +89,7 @@ from .main import socketio
 
 @socketio.on('connect')
 def connected():
-    print("Connected...")
+    # print("Connected...")
     ret = kiwoom_agent.getConnectState()
     if ret:
         emit('authentication', {'status': 'logged_in'})
@@ -90,7 +98,8 @@ def connected():
 
 @socketio.on('disconnect')
 def disconnected():
-    print("Disonnected...")
+    pass
+    # print("Disonnected...")
 
 @socketio.on('message')
 def handle_message(message):

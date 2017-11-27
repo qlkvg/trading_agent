@@ -38,16 +38,13 @@ class KiwoomAPI(QObject):
 
     def OnReceiveTrData(self, scrNo, rQName , trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg):
         self.agent.debug_list.addItem("<< OnReceiveTrData() is received")
-        print("OnReceiveTrData: ", scrNo, rQName , trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg)
+        # print("OnReceiveTrData: ", scrNo, rQName , trCode, recordName, prevNext, dataLength, errorCode, message, splmMsg)
 
-        if (trCode == 'opw00004'):
+        if (trCode == 'opw00004' and rQName == '계좌평가현황요청'):
             self.agent.handleCheckBalance(trCode, rQName, scrNo, recordName)
+        elif (trCode == 'opw00004' and rQName == '보유주식요청'):
+            self.agent.handleGetAssets(trCode, rQName, scrNo, recordName)
 
-        # print(self.getRepeatCnt(trCode, rQName))
-        # print(self.commGetData(trCode, "", rQName, 0, "종목명"))
-        #     print(self.kiwoom.CommGetData(trCode, "", rQName, 0, "시가총액"))
-        #     print(self.kiwoom.CommGetData(trCode, "", rQName, 0, "거래량"))
-        #     print(self.commGetData(trCode, "", rQName, 0, "현재가"))
 
 
     def commConnect(self):
