@@ -35,25 +35,25 @@ class KiwoomAgent(QMainWindow):
 
         self.statusBar() #.showMessage('Ready')
 
-        self.input_edit = QLineEdit(frame)
+        # self.input_edit = QLineEdit(frame)
         self.debug_list = QListWidget(frame)
 
         login_btn = QPushButton("로그인", frame)
-        current_price_button = QPushButton("종목 현재가", frame)
-        test_btn = QPushButton("테스트", frame)
+        # current_price_button = QPushButton("종목 현재가", frame)
+        # test_btn = QPushButton("테스트", frame)
         quit_btn = QPushButton("종료", frame)
 
         login_btn.clicked.connect(self.login)
-        current_price_button.clicked.connect(self.get_current_price)
-        test_btn.clicked.connect(self.test)
+        # current_price_button.clicked.connect(self.get_current_price)
+        # test_btn.clicked.connect(self.test)
         quit_btn.clicked.connect(self.quit)
 
-        grid.addWidget(self.input_edit, 2, 0)
+        # grid.addWidget(self.input_edit, 2, 0)
         grid.addWidget(self.debug_list, 4, 0, 8, 0)
 
         grid.addWidget(login_btn, 13, 0)
-        grid.addWidget(current_price_button, 14, 0)
-        grid.addWidget(test_btn, 15, 0)
+        # grid.addWidget(current_price_button, 14, 0)
+        # grid.addWidget(test_btn, 15, 0)
         grid.addWidget(quit_btn, 16, 0)
 
         self.setGeometry(0, 0, 480, 480)  # x, y, w, h
@@ -62,7 +62,7 @@ class KiwoomAgent(QMainWindow):
         self.show()
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Message', "Are you sure to quit?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        reply = QMessageBox.question(self, 'Message', "Are you sure to quit?", QMessageBox.No|QMessageBox.Yes, QMessageBox.Yes)
 
         if reply == QMessageBox.Yes:
             self.socketio.stop()
@@ -172,7 +172,7 @@ class KiwoomAgent(QMainWindow):
             self.socketio.emit('assets-info', results)
             # print('보유주식요청', results)
 
-    def get_condtions(self):
+    def get_conditions(self):
         ret = self.api.getConditionLoad()
         return ret
 

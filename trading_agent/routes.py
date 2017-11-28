@@ -56,7 +56,7 @@ def get_assets(account_no):
         return json_response(status_=202)
 
 @app.route('/conditions')
-def get_assets(account_no):
+def get_conditions():
     ret = kiwoom_agent.get_conditions()
     if ret == 0:
         return json_response(status_=202)
