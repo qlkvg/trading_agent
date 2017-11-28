@@ -172,13 +172,22 @@ class KiwoomAgent(QMainWindow):
             self.socketio.emit('assets-info', results)
             # print('보유주식요청', results)
 
-    def get_conditions(self):
+    def get_condition_equations(self):
         ret = self.api.getConditionLoad()
         return ret
 
     def handleGetConditionNameList(self):
         conditionList = self.api.getConditionNameList()
-        print('조건검색명', conditionList)
+        conditionList = conditionList[:-1].split(";")
+        # print('조건검색명', conditionList)
+
+        results = []
+        for idx in range(0, len(conditionList)):
+            item = conditionList[idx].split("^")
+            results.append({"인덱스": item[0], "조건명": item[1]})
+
+        if len(results) > 0:
+            self.socketio.emit('equations-info', results)
 
     def get_current_price(self, stock_code):
         val = self.input_edit.text()

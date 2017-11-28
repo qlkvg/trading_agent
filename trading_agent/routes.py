@@ -55,9 +55,9 @@ def get_assets(account_no):
     else:
         return json_response(status_=202)
 
-@app.route('/conditions')
-def get_conditions():
-    ret = kiwoom_agent.get_conditions()
+@app.route('/equations')
+def get_equations():
+    ret = kiwoom_agent.get_condition_equations()
     if ret == 0:
         return json_response(status_=202)
     else:
