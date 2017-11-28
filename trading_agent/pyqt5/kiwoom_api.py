@@ -25,9 +25,11 @@ class KiwoomAPI(QObject):
             self.kiwoom.OnEventConnect.connect(self.OnEventConnect)
             self.kiwoom.OnReceiveMsg.connect(self.OnReceiveMsg)
             self.kiwoom.OnReceiveTrData.connect(self.OnReceiveTrData)
+            self.kiwoom.OnReceiveConditionVer.connect(self.OnReceiveConditionVer)
         else:
             self.OnEventConnectSignal.connect(self.OnEventConnect)
 
+    ############################################################################
 
     def OnEventConnect(self, errCode):
         self.agent.debug_list.addItem("<< OnEventConnect({}) is received".format(errCode))
@@ -45,7 +47,13 @@ class KiwoomAPI(QObject):
         elif (trCode == 'opw00004' and rQName == '보유주식요청'):
             self.agent.handleGetAssets(trCode, rQName, scrNo, recordName)
 
+    def OnReceiveConditionVer(self, ret, msg):
+        self.agent.debug_list.addItem("<< OnReceiveConditionVer() is received")
+        if(ret): # 성공
+            self.agent.handleGetConditionNameList()
 
+
+    ############################################################################
 
     def commConnect(self):
         self.agent.debug_list.addItem(">> CommConnect() is called")
@@ -89,14 +97,25 @@ class KiwoomAPI(QObject):
             return self.kiwoom.dynamicCall("GetRepeatCnt(str, str)", trCode, recordName)
             # return self.kiwoom.dynamicCall("GetRepeatCnt(str, str)", 'opt10001', '주식기본정보')
 
+    # commGetData() 사용 중지 => getCommData() 사용할 것
     # @pyqtSlot(str, str, str, int, str, result=str)
-    def commGetData(self, jongmokCode, realType, fieldName, index, innerFieldName):
-        self.agent.debug_list.addItem(">> CommGetData('{}', '{}', '{}', {}, '{}') is called".format(jongmokCode, realType, fieldName, index, innerFieldName))
-        if self.kiwoom:
-            return self.kiwoom.dynamicCall("CommGetData(str, str, str, int, str)", jongmokCode, realType, fieldName, index, innerFieldName).strip()
-            # return self.kiwoom.dynamicCall("CommGetData(str, str, str, int, str)", "opt10001", "", "주식기본정보", 0, "종목코드").strip()
+    # def commGetData(self, jongmokCode, realType, fieldName, index, innerFieldName):
+    #     self.agent.debug_list.addItem(">> CommGetData('{}', '{}', '{}', {}, '{}') is called".format(jongmokCode, realType, fieldName, index, innerFieldName))
+    #     if self.kiwoom:
+    #         return self.kiwoom.dynamicCall("CommGetData(str, str, str, int, str)", jongmokCode, realType, fieldName, index, innerFieldName).strip()
+    #         # return self.kiwoom.dynamicCall("CommGetData(str, str, str, int, str)", "opt10001", "", "주식기본정보", 0, "종목코드").strip()
 
     def getCommData(self, trCode, recordName, index, itemName):
         self.agent.debug_list.addItem(">> GetCommData('{}', '{}', '{}', {}) is called".format(trCode, recordName, index, itemName))
         if self.kiwoom:
             return self.kiwoom.dynamicCall("GetCommData(str, str, int, str)", trCode, recordName, index, itemName).strip()
+
+    def getConditionLoad(self):
+        self.agent.debug_list.addItem(">> getConditionLoad() is called")
+        if self.kiwoom:
+            return self.kiwoom.dynamicCall("GetConditionLoad()")
+
+    def getConditionNameList(self):
+        self.agent.debug_list.addItem(">> getConditionNameList() is called")
+        if self.kiwoom:
+            return self.kiwoom.dynamicCall("GetConditionNameList()")
